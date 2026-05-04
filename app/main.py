@@ -16,4 +16,4 @@ app.add_middleware(
 )
 
 register_error_handlers(app)
-app.include_router(api_router, prefix="/api/admin")
+app.include_router(api_router)

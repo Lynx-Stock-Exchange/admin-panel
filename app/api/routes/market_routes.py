@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.core.security import get_current_admin
 from app.schemas.market import (
     MarketActionResponse,
     MarketSpeedUpdateRequest,
@@ -7,7 +8,7 @@ from app.schemas.market import (
 )
 from app.services.market_service import market_service
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_admin)])
 
 
 @router.get("/status", response_model=MarketStatusResponse)
