@@ -17,7 +17,7 @@ def login(request: LoginRequest, response: Response):
         value=token,
         httponly=True,
         secure=settings.secure_cookies,
-        samesite="strict",
+        samesite="lax",
         max_age=settings.jwt_expire_minutes * 60,
         path="/",
     )
