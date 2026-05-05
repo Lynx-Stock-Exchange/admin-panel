@@ -129,6 +129,7 @@ Icon?
 *.log
 *.sql
 *.sqlite
+*.db
 
 # Sensitive files
 secrets.yml

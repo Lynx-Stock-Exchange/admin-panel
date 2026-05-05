@@ -1,13 +1,16 @@
 from app.core.exceptions import AppException
 from app.core.security import create_admin_access_token, verify_password
-from app.repositories.admin_repository import admin_repository
+from app.repositories.admin_repository import AdminRepository
 
 
 class AuthService:
-    def login(self, username: str, password: str) -> tuple[dict, str]:
-        admin = admin_repository.find_by_username(username)
+    def __init__(self, admin_repository: AdminRepository):
+        self.admin_repository = admin_repository
 
-        if not admin or not admin["is_active"]:
+    def login(self, username: str, password: str):
+        admin = self.admin_repository.find_by_username(username)
+
+        if not admin or not admin.is_active:
             raise AppException(
                 code="INVALID_CREDENTIALS",
                 message="Invalid username or password.",
@@ -15,7 +18,7 @@ class AuthService:
                 details={},
             )
 
-        if not verify_password(password, admin["password_hash"]):
+        if not verify_password(password, admin.password_hash):
             raise AppException(
                 code="INVALID_CREDENTIALS",
                 message="Invalid username or password.",
@@ -26,6 +29,3 @@ class AuthService:
         token = create_admin_access_token(admin)
 
         return admin, token
-
-
-auth_service = AuthService()

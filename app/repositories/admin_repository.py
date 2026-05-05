@@ -1,16 +1,13 @@
-from app.data.stub_store import stub_store
+from sqlmodel import Session, select
+
+from app.db.base_repository import BaseRepository
+from app.models.admin import Admin
 
 
-class AdminRepository:
-    def find_by_username(self, username: str) -> dict | None:
-        return stub_store.admins.get(username)
+class AdminRepository(BaseRepository[Admin]):
+    def __init__(self, session: Session):
+        super().__init__(Admin, session)
 
-    def find_by_id(self, admin_id: str) -> dict | None:
-        for admin in stub_store.admins.values():
-            if admin["id"] == admin_id:
-                return admin
-
-        return None
-
-
-admin_repository = AdminRepository()
+    def find_by_username(self, username: str) -> Admin | None:
+        statement = select(Admin).where(Admin.username == username)
+        return self.session.exec(statement).first()

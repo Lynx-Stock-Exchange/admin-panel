@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from app.core.security import get_current_admin
-from app.schemas.market import (
+from app.api.deps import get_current_admin
+from app.dtos.market import (
     MarketActionResponse,
     MarketSpeedUpdateRequest,
     MarketStatusResponse,
