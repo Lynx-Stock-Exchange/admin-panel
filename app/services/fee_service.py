@@ -4,73 +4,7 @@ from app.core.config import settings
 from app.core.exceptions import AppException
 from app.dtos.fee import FeeRateUpdateRequest
 
-_STUB_ORDERS = [
-    {
-        "order_id": "ord-00000001",
-        "platform_id": "platform-alpha",
-        "platform_user_id": "user-001",
-        "instrument_type": "STOCK",
-        "instrument_id": "ARKA",
-        "side": "BUY",
-        "filled_quantity": 50,
-        "average_fill_price": 120.00,
-        "exchange_fee": 6.00,
-        "status": "FILLED",
-        "created_at": "2024-03-15T09:15:00+00:00",
-    },
-    {
-        "order_id": "ord-00000002",
-        "platform_id": "platform-beta",
-        "platform_user_id": "user-042",
-        "instrument_type": "STOCK",
-        "instrument_id": "MNVS",
-        "side": "SELL",
-        "filled_quantity": 100,
-        "average_fill_price": 84.50,
-        "exchange_fee": 8.45,
-        "status": "FILLED",
-        "created_at": "2024-03-15T09:30:00+00:00",
-    },
-    {
-        "order_id": "ord-00000003",
-        "platform_id": "platform-alpha",
-        "platform_user_id": "user-007",
-        "instrument_type": "OPTION",
-        "instrument_id": "opt-arka-call-1",
-        "side": "BUY",
-        "filled_quantity": 10,
-        "average_fill_price": 5.00,
-        "exchange_fee": 0.50,
-        "status": "FILLED",
-        "created_at": "2024-03-15T10:00:00+00:00",
-    },
-    {
-        "order_id": "ord-00000004",
-        "platform_id": "platform-beta",
-        "platform_user_id": "user-013",
-        "instrument_type": "STOCK",
-        "instrument_id": "SOLX",
-        "side": "BUY",
-        "filled_quantity": 200,
-        "average_fill_price": 55.75,
-        "exchange_fee": 11.15,
-        "status": "FILLED",
-        "created_at": "2024-03-15T10:45:00+00:00",
-    },
-    {
-        "order_id": "ord-00000005",
-        "platform_id": "platform-alpha",
-        "platform_user_id": "user-001",
-        "instrument_type": "STOCK",
-        "instrument_id": "VRTX",
-        "side": "BUY",
-        "filled_quantity": 5,
-        "average_fill_price": 210.00,
-        "exchange_fee": 1.05,
-        "status": "FILLED",
-        "created_at": "2024-03-15T11:20:00+00:00",
-    },
-]
+_STUB_ORDERS: list[dict] = []
 
 
 class FeeService:

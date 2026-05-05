@@ -10,41 +10,7 @@ from app.dtos.event import EventTriggerRequest
 
 class EventService:
     def __init__(self):
-        self._stub_events: list[dict] = [
-            {
-                "event_id": "evt-00000001",
-                "event_type": "BULL_RUN",
-                "scope": "MARKET",
-                "target": None,
-                "magnitude": 1.5,
-                "duration_ticks": 30,
-                "headline": "Global markets surge on positive economic data",
-                "triggered_at": "2024-03-15T09:15:00+00:00",
-                "triggered_by": "SYSTEM",
-            },
-            {
-                "event_id": "evt-00000002",
-                "event_type": "SECTOR_SLUMP",
-                "scope": "SECTOR",
-                "target": "Tech",
-                "magnitude": 1.8,
-                "duration_ticks": 20,
-                "headline": "Regulatory concerns shake the Tech sector",
-                "triggered_at": "2024-03-15T10:30:00+00:00",
-                "triggered_by": "ADMIN",
-            },
-            {
-                "event_id": "evt-00000003",
-                "event_type": "STOCK_SHOCK",
-                "scope": "STOCK",
-                "target": "SOLX",
-                "magnitude": 2.0,
-                "duration_ticks": 10,
-                "headline": "Solara Energy hit by surprise regulatory fine",
-                "triggered_at": "2024-03-15T11:45:00+00:00",
-                "triggered_by": "SYSTEM",
-            },
-        ]
+        self._stub_events: list[dict] = []
 
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}

@@ -9,38 +9,7 @@ from app.dtos.option import OptionCreateRequest
 
 class OptionService:
     def __init__(self):
-        self._stub_options: dict[str, dict] = {
-            "opt-arka-call-1": {
-                "option_id": "opt-arka-call-1",
-                "underlying_ticker": "ARKA",
-                "option_type": "CALL",
-                "strike_price": 130.00,
-                "expiry_time": "2024-03-15T14:00:00",
-                "premium": 5.00,
-                "is_active": True,
-                "auto_exercise": True,
-            },
-            "opt-arka-put-1": {
-                "option_id": "opt-arka-put-1",
-                "underlying_ticker": "ARKA",
-                "option_type": "PUT",
-                "strike_price": 110.00,
-                "expiry_time": "2024-03-15T14:00:00",
-                "premium": 3.50,
-                "is_active": True,
-                "auto_exercise": True,
-            },
-            "opt-solx-call-1": {
-                "option_id": "opt-solx-call-1",
-                "underlying_ticker": "SOLX",
-                "option_type": "CALL",
-                "strike_price": 60.00,
-                "expiry_time": "2024-03-15T16:00:00",
-                "premium": 2.20,
-                "is_active": True,
-                "auto_exercise": True,
-            },
-        }
+        self._stub_options: dict[str, dict] = {}
 
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
