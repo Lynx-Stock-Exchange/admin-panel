@@ -9,6 +9,7 @@ from app.api.routes import (
     market_routes,
     options_routes,
     platforms_routes,
+    seed_routes,
     stocks_routes,
 )
 
@@ -22,6 +23,7 @@ api_router.include_router(stocks_routes.router, prefix="/api/admin/stocks", tags
 api_router.include_router(options_routes.router, prefix="/api/admin/options", tags=["Options"])
 api_router.include_router(events_routes.router, prefix="/api/admin/events", tags=["Events"])
 api_router.include_router(fees_routes.router, prefix="/api/admin/fees", tags=["Fees"])
+api_router.include_router(seed_routes.router, prefix="/api/admin/seed", tags=["Seed"])
 
 api_router.include_router(
     internal_platforms_routes.router,

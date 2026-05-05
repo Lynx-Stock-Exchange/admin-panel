@@ -9,36 +9,7 @@ from app.dtos.stock import StockCreateRequest
 
 class StockService:
     def __init__(self):
-        self._stub_stocks: dict[str, dict] = {
-            "ARKA": {
-                "ticker": "ARKA", "name": "Arkadia Technologies", "sector": "Tech",
-                "current_price": 120.00, "open_price": 118.50, "high_price": 121.30,
-                "low_price": 117.80, "volume": 45200, "volatility": 0.03,
-                "trend_bias": 0.001, "event_weight": 1.5, "momentum": 0.6,
-                "listed_at": "2024-03-15T09:00:00",
-            },
-            "MNVS": {
-                "ticker": "MNVS", "name": "Minerva Solutions", "sector": "Finance",
-                "current_price": 84.50, "open_price": 83.00, "high_price": 85.10,
-                "low_price": 82.40, "volume": 31000, "volatility": 0.02,
-                "trend_bias": 0.0005, "event_weight": 1.2, "momentum": 0.4,
-                "listed_at": "2024-03-15T09:00:00",
-            },
-            "SOLX": {
-                "ticker": "SOLX", "name": "Solara Energy", "sector": "Energy",
-                "current_price": 55.75, "open_price": 56.20, "high_price": 57.00,
-                "low_price": 54.90, "volume": 62400, "volatility": 0.04,
-                "trend_bias": -0.0005, "event_weight": 1.8, "momentum": 0.7,
-                "listed_at": "2024-03-15T09:00:00",
-            },
-            "VRTX": {
-                "ticker": "VRTX", "name": "Vertex Pharma", "sector": "Health",
-                "current_price": 210.00, "open_price": 208.00, "high_price": 212.50,
-                "low_price": 207.00, "volume": 18900, "volatility": 0.025,
-                "trend_bias": 0.002, "event_weight": 1.3, "momentum": 0.5,
-                "listed_at": "2024-03-15T09:00:00",
-            },
-        }
+        self._stub_stocks: dict[str, dict] = {}
 
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
