@@ -1,8 +1,10 @@
 from typing import TypeVar, Generic, Type, Optional, List, Any
 from sqlmodel import Session, select, SQLModel
 
+
 # This represents our generic SQLModel type
 ModelType = TypeVar("ModelType", bound=SQLModel)
+
 
 class BaseRepository(Generic[ModelType]):
     """
