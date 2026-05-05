@@ -8,7 +8,7 @@ class PlatformCreateRequest(BaseModel):
 
 
 class PlatformResponse(BaseModel):
-    id: str
+    id: int
     name: str
     description: str | None = None
     api_key: str
@@ -33,7 +33,7 @@ class PlatformRevokeResponse(BaseModel):
 
 
 class InternalPlatformResponse(BaseModel):
-    id: str
+    id: int
     name: str
     api_key: str
     api_secret_hash: str
