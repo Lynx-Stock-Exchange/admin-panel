@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     use_stubs: bool = True
 
     exchange_base_url: str = "http://localhost:9000/api/v1"
+    exchange_admin_token: str = "dev-exchange-admin-token"
 
     jwt_secret_key: str = "dev-secret-change-this"
     jwt_algorithm: str = "HS256"
