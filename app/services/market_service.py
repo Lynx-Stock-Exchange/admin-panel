@@ -4,6 +4,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.exceptions import AppException
+from app.core.kafka_producer import publish
 
 
 class MarketService:
@@ -50,14 +51,14 @@ class MarketService:
                 status_code=503,
             )
 
+    def _gateway(self) -> str:
+        return f"{settings.api_gateway_url}/admin/market"
+
     def get_status(self) -> dict:
         if settings.use_stubs:
             return self._stub_status()
         with httpx.Client() as client:
-            response = client.get(
-                f"{settings.exchange_base_url}/market/status",
-                headers=self._headers(),
-            )
+            response = client.get(f"{self._gateway()}/status")
             return self._handle_response(response)
 
     def open_market(self) -> dict:
@@ -65,23 +66,18 @@ class MarketService:
             self._stub_state["is_open"] = True
             self._stub_state["market_time"] = datetime.now(timezone.utc)
             return self._stub_status()
-        with httpx.Client() as client:
-            response = client.post(
-                f"{settings.exchange_base_url}/admin/market/open",
-                headers=self._headers(),
-            )
-            return self._handle_response(response)
+        publish("admin.commands", {"action": "OPEN_MARKET"})
+        self._stub_state["is_open"] = True
+        self._stub_state["market_time"] = datetime.now(timezone.utc)
+        return self._stub_status()
 
     def close_market(self) -> dict:
         if settings.use_stubs:
             self._stub_state["is_open"] = False
             return self._stub_status()
-        with httpx.Client() as client:
-            response = client.post(
-                f"{settings.exchange_base_url}/admin/market/close",
-                headers=self._headers(),
-            )
-            return self._handle_response(response)
+        publish("admin.commands", {"action": "CLOSE_MARKET"})
+        self._stub_state["is_open"] = False
+        return self._stub_status()
 
     def update_speed(self, multiplier: int) -> dict:
         if settings.use_stubs:
@@ -89,8 +85,7 @@ class MarketService:
             return self._stub_status()
         with httpx.Client() as client:
             response = client.put(
-                f"{settings.exchange_base_url}/admin/market/speed",
-                headers=self._headers(),
+                f"{self._gateway()}/speed",
                 json={"multiplier": multiplier},
             )
             return self._handle_response(response)

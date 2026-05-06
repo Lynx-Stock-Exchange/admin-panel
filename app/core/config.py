@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     exchange_base_url: str = "http://localhost:9000/api/v1"
     exchange_admin_token: str = "dev-exchange-admin-token"
 
+    api_gateway_url: str = "http://localhost:8080"
+    kafka_bootstrap_servers: str = "localhost:9092"
+
     jwt_secret_key: str = "dev-secret-change-this"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 120
