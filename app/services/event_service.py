@@ -118,8 +118,7 @@ class EventService:
 
         with httpx.Client() as client:
             response = client.post(
-                f"{settings.exchange_base_url}/admin/events/trigger",
-                headers=self._headers(),
+                f"{settings.api_gateway_url}/admin/events/trigger",
                 json=req.model_dump(),
             )
             return self._handle_response(response)
