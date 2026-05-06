@@ -1,5 +1,6 @@
 from app.core.exceptions import AppException
-from app.core.security import create_admin_access_token, verify_password
+from app.core.security import create_admin_access_token, pwd_context, verify_password
+from app.models.admin import Admin
 from app.repositories.admin_repository import AdminRepository
 
 
@@ -26,6 +27,22 @@ class AuthService:
                 details={},
             )
 
+        token = create_admin_access_token(admin)
+
+        return admin, token
+
+    def register(self, username: str, password: str):
+        if self.admin_repository.find_by_username(username):
+            raise AppException(
+                code="USERNAME_TAKEN",
+                message="Username is already taken.",
+                status_code=409,
+                details={},
+            )
+
+        admin = self.admin_repository.create(
+            Admin(username=username, password_hash=pwd_context.hash(password))
+        )
         token = create_admin_access_token(admin)
 
         return admin, token

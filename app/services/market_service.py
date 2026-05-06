@@ -62,6 +62,7 @@ class MarketService:
             return self._handle_response(response)
 
     def open_market(self) -> dict:
+        print("Trying to open the market....")
         if settings.use_stubs:
             self._stub_state["is_open"] = True
             self._stub_state["market_time"] = datetime.now(timezone.utc)
@@ -72,6 +73,7 @@ class MarketService:
         return self._stub_status()
 
     def close_market(self) -> dict:
+        print("Trying to close the market....")
         if settings.use_stubs:
             self._stub_state["is_open"] = False
             return self._stub_status()

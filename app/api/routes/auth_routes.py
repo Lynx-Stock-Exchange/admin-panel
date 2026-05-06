@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.core.security import ADMIN_COOKIE_NAME
 from app.db.session import get_session
 from app.repositories.admin_repository import AdminRepository
-from app.dtos.auth import LoginRequest, LoginResponse, MeResponse
+from app.dtos.auth import LoginRequest, LoginResponse, MeResponse, RegisterRequest
 from app.services.auth_service import AuthService
 from app.api.deps import get_current_admin
 
@@ -29,6 +29,31 @@ def login(request: LoginRequest, response: Response, session: Session = Depends(
 
     return {
         "message": "Admin logged in successfully.",
+        "admin": {
+            "id": str(admin.id),
+            "username": admin.username,
+            "is_active": admin.is_active,
+        },
+    }
+
+
+@router.post("/register", response_model=LoginResponse, status_code=201)
+def register(request: RegisterRequest, response: Response, session: Session = Depends(get_session)):
+    auth_service = AuthService(AdminRepository(session))
+    admin, token = auth_service.register(request.username, request.password)
+
+    response.set_cookie(
+        key=ADMIN_COOKIE_NAME,
+        value=token,
+        httponly=True,
+        secure=settings.secure_cookies,
+        samesite="lax",
+        max_age=settings.jwt_expire_minutes * 60,
+        path="/",
+    )
+
+    return {
+        "message": "Admin registered successfully.",
         "admin": {
             "id": str(admin.id),
             "username": admin.username,
