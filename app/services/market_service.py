@@ -1,28 +1,15 @@
-from datetime import datetime, timezone
-
 import httpx
 
 from app.core.config import settings
 from app.core.exceptions import AppException
-from app.core.kafka_producer import publish
 
 
 class MarketService:
-    def __init__(self):
-        self._stub_state = {
-            "is_open": False,
-            "market_time": datetime.now(timezone.utc),
-            "real_time": datetime.now(timezone.utc),
-            "speed_multiplier": 1,
-            "active_event": None,
-        }
-
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
 
-    def _stub_status(self) -> dict:
-        self._stub_state["real_time"] = datetime.now(timezone.utc)
-        return dict(self._stub_state)
+    def _base(self) -> str:
+        return f"{settings.exchange_base_url}/admin/market"
 
     def _handle_response(self, response: httpx.Response) -> dict:
         try:
@@ -38,7 +25,7 @@ class MarketService:
                     status_code=e.response.status_code,
                     details=error.get("details", {}),
                 )
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, AttributeError):
                 raise AppException(
                     code="EXCHANGE_ERROR",
                     message=f"Exchange returned status {e.response.status_code}.",
@@ -51,46 +38,29 @@ class MarketService:
                 status_code=503,
             )
 
-    def _gateway(self) -> str:
-        return f"{settings.api_gateway_url}/admin/market"
-
     def get_status(self) -> dict:
-        if settings.use_stubs:
-            return self._stub_status()
         with httpx.Client() as client:
-            response = client.get(f"{self._gateway()}/status")
+            response = client.get(f"{self._base()}/status", headers=self._headers())
             return self._handle_response(response)
 
     def open_market(self) -> dict:
-        print("Trying to open the market....")
-        if settings.use_stubs:
-            self._stub_state["is_open"] = True
-            self._stub_state["market_time"] = datetime.now(timezone.utc)
-            return self._stub_status()
-        publish("admin.commands", {"action": "OPEN_MARKET"})
-        self._stub_state["is_open"] = True
-        self._stub_state["market_time"] = datetime.now(timezone.utc)
-        return self._stub_status()
+        with httpx.Client() as client:
+            client.post(f"{self._base()}/open", headers=self._headers())
+        return self.get_status()
 
     def close_market(self) -> dict:
-        print("Trying to close the market....")
-        if settings.use_stubs:
-            self._stub_state["is_open"] = False
-            return self._stub_status()
-        publish("admin.commands", {"action": "CLOSE_MARKET"})
-        self._stub_state["is_open"] = False
-        return self._stub_status()
+        with httpx.Client() as client:
+            client.post(f"{self._base()}/close", headers=self._headers())
+        return self.get_status()
 
     def update_speed(self, multiplier: int) -> dict:
-        if settings.use_stubs:
-            self._stub_state["speed_multiplier"] = multiplier
-            return self._stub_status()
         with httpx.Client() as client:
-            response = client.put(
-                f"{self._gateway()}/speed",
+            client.put(
+                f"{self._base()}/speed",
+                headers=self._headers(),
                 json={"multiplier": multiplier},
             )
-            return self._handle_response(response)
+        return self.get_status()
 
 
 market_service = MarketService()

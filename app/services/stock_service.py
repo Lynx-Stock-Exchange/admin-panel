@@ -23,7 +23,7 @@ class StockService:
                     status_code=e.response.status_code,
                     details=error.get("details", {}),
                 )
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, AttributeError):
                 raise AppException(
                     code="EXCHANGE_ERROR",
                     message=f"Exchange returned status {e.response.status_code}.",
@@ -39,7 +39,7 @@ class StockService:
     def list_stocks(self) -> list[dict]:
         with httpx.Client() as client:
             response = client.get(
-                f"{settings.exchange_base_url}/market/stocks",
+                f"{settings.exchange_base_url}/admin/stocks",
                 headers=self._headers(),
             )
             return self._handle_response(response)

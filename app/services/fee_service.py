@@ -23,7 +23,7 @@ class FeeService:
                     status_code=e.response.status_code,
                     details=error.get("details", {}),
                 )
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, AttributeError):
                 raise AppException(
                     code="EXCHANGE_ERROR",
                     message=f"Exchange returned status {e.response.status_code}.",
@@ -39,7 +39,7 @@ class FeeService:
     def get_fee_rate(self) -> dict:
         with httpx.Client() as client:
             response = client.get(
-                f"{settings.exchange_base_url}/market/status",
+                f"{settings.exchange_base_url}/admin/fees",
                 headers=self._headers(),
             )
             data = self._handle_response(response)
@@ -53,20 +53,15 @@ class FeeService:
                 json={"rate": req.rate},
             )
             data = self._handle_response(response)
-            return {"rate": data.get("rate", req.rate), "message": f"Fee rate updated to {req.rate}."}
+            return {"rate": data.get("fee_rate", req.rate), "message": f"Fee rate updated to {req.rate}."}
 
     def get_revenue(self) -> dict:
         with httpx.Client() as client:
             response = client.get(
-                f"{settings.exchange_base_url}/admin/orders",
+                f"{settings.exchange_base_url}/admin/revenue",
                 headers=self._headers(),
-                params={"status": "FILLED", "page_size": 1000},
             )
-            data = self._handle_response(response)
-            orders = data if isinstance(data, list) else data.get("orders", [])
-            filled = [o for o in orders if o.get("status") == "FILLED"]
-            total = round(sum(o.get("exchange_fee", 0) for o in filled), 4)
-            return {"total_revenue": total}
+            return self._handle_response(response)
 
 
 fee_service = FeeService()
