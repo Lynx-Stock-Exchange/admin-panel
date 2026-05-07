@@ -35,3 +35,7 @@ class StockResponse(BaseModel):
 
 class StockListResponse(BaseModel):
     stocks: list[StockResponse]
+
+
+class StockTotalResponse(BaseModel):
+    count: int

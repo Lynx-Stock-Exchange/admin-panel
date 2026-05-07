@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 import httpx
 
 from app.core.config import settings
@@ -8,9 +6,6 @@ from app.dtos.stock import StockCreateRequest
 
 
 class StockService:
-    def __init__(self):
-        self._stub_stocks: dict[str, dict] = {}
-
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
 
@@ -41,26 +36,7 @@ class StockService:
                 status_code=503,
             )
 
-    def _stub_stock_from_request(self, req: StockCreateRequest) -> dict:
-        return {
-            "ticker": req.ticker,
-            "name": req.name,
-            "sector": req.sector,
-            "current_price": req.start_price,
-            "open_price": req.start_price,
-            "high_price": req.start_price,
-            "low_price": req.start_price,
-            "volume": 0,
-            "volatility": req.volatility,
-            "trend_bias": req.trend_bias,
-            "event_weight": req.event_weight,
-            "momentum": req.momentum,
-            "listed_at": datetime.now(timezone.utc).isoformat(),
-        }
-
     def list_stocks(self) -> list[dict]:
-        if settings.use_stubs:
-            return list(self._stub_stocks.values())
         with httpx.Client() as client:
             response = client.get(
                 f"{settings.exchange_base_url}/market/stocks",
@@ -69,16 +45,6 @@ class StockService:
             return self._handle_response(response)
 
     def create_stock(self, req: StockCreateRequest) -> dict:
-        if settings.use_stubs:
-            if req.ticker in self._stub_stocks:
-                raise AppException(
-                    code="RESOURCE_EXISTS",
-                    message=f"Stock '{req.ticker}' already exists.",
-                    status_code=409,
-                )
-            stock = self._stub_stock_from_request(req)
-            self._stub_stocks[req.ticker] = stock
-            return stock
         with httpx.Client() as client:
             response = client.post(
                 f"{settings.exchange_base_url}/admin/stocks",
@@ -87,15 +53,10 @@ class StockService:
             )
             return self._handle_response(response)
 
+    def get_total(self) -> dict:
+        return {"count": len(self.list_stocks())}
+
     def seed_stocks(self, stocks: list[StockCreateRequest]) -> list[dict]:
-        if settings.use_stubs:
-            created = []
-            for req in stocks:
-                if req.ticker not in self._stub_stocks:
-                    stock = self._stub_stock_from_request(req)
-                    self._stub_stocks[req.ticker] = stock
-                    created.append(stock)
-            return created
         with httpx.Client() as client:
             response = client.post(
                 f"{settings.exchange_base_url}/admin/stocks/seed",

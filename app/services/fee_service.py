@@ -4,13 +4,8 @@ from app.core.config import settings
 from app.core.exceptions import AppException
 from app.dtos.fee import FeeRateUpdateRequest
 
-_STUB_ORDERS: list[dict] = []
-
 
 class FeeService:
-    def __init__(self):
-        self._stub_fee_rate: float = 0.001
-
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
 
@@ -42,8 +37,6 @@ class FeeService:
             )
 
     def get_fee_rate(self) -> dict:
-        if settings.use_stubs:
-            return {"rate": self._stub_fee_rate, "message": "Current exchange fee rate."}
         with httpx.Client() as client:
             response = client.get(
                 f"{settings.exchange_base_url}/market/status",
@@ -53,9 +46,6 @@ class FeeService:
             return {"rate": data.get("fee_rate", 0.001), "message": "Current exchange fee rate."}
 
     def update_fee_rate(self, req: FeeRateUpdateRequest) -> dict:
-        if settings.use_stubs:
-            self._stub_fee_rate = req.rate
-            return {"rate": self._stub_fee_rate, "message": f"Fee rate updated to {req.rate}."}
         with httpx.Client() as client:
             response = client.put(
                 f"{settings.exchange_base_url}/admin/fees",
@@ -66,15 +56,6 @@ class FeeService:
             return {"rate": data.get("rate", req.rate), "message": f"Fee rate updated to {req.rate}."}
 
     def get_revenue(self) -> dict:
-        if settings.use_stubs:
-            filled = [o for o in _STUB_ORDERS if o["status"] == "FILLED"]
-            total = round(sum(o["exchange_fee"] for o in filled), 4)
-            return {
-                "fee_rate": self._stub_fee_rate,
-                "total_revenue": total,
-                "filled_order_count": len(filled),
-                "orders": filled,
-            }
         with httpx.Client() as client:
             response = client.get(
                 f"{settings.exchange_base_url}/admin/orders",
@@ -85,13 +66,7 @@ class FeeService:
             orders = data if isinstance(data, list) else data.get("orders", [])
             filled = [o for o in orders if o.get("status") == "FILLED"]
             total = round(sum(o.get("exchange_fee", 0) for o in filled), 4)
-            fee_info = self.get_fee_rate()
-            return {
-                "fee_rate": fee_info["rate"],
-                "total_revenue": total,
-                "filled_order_count": len(filled),
-                "orders": filled,
-            }
+            return {"total_revenue": total}
 
 
 fee_service = FeeService()

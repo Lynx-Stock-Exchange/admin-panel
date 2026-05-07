@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends
 
 from app.api.deps import get_current_admin
-from app.dtos.option import OptionCreateRequest, OptionListResponse, OptionResponse
+from app.dtos.option import OptionCreateRequest, OptionListResponse, OptionResponse, OptionTotalResponse
 from app.services.option_service import option_service
 
 router = APIRouter(dependencies=[Depends(get_current_admin)])
+
+
+@router.get("/total", response_model=OptionTotalResponse)
+def get_options_total():
+    return option_service.get_total()
 
 
 @router.get("", response_model=OptionListResponse)

@@ -24,9 +24,5 @@ class OrderFeeRecord(BaseModel):
     status: str
     created_at: datetime
 
-
 class RevenueResponse(BaseModel):
-    fee_rate: float
     total_revenue: float
-    filled_order_count: int
-    orders: list[OrderFeeRecord]

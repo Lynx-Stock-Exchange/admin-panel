@@ -1,5 +1,3 @@
-import uuid
-
 import httpx
 
 from app.core.config import settings
@@ -8,9 +6,6 @@ from app.dtos.option import OptionCreateRequest
 
 
 class OptionService:
-    def __init__(self):
-        self._stub_options: dict[str, dict] = {}
-
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
 
@@ -41,9 +36,8 @@ class OptionService:
                 status_code=503,
             )
 
+
     def list_options(self) -> list[dict]:
-        if settings.use_stubs:
-            return list(self._stub_options.values())
         with httpx.Client() as client:
             response = client.get(
                 f"{settings.exchange_base_url}/market/options",
@@ -51,21 +45,10 @@ class OptionService:
             )
             return self._handle_response(response)
 
+    def get_total(self) -> dict:
+        return {"count": len(self.list_options())}
+
     def create_option(self, req: OptionCreateRequest) -> dict:
-        if settings.use_stubs:
-            option_id = f"opt-{uuid.uuid4().hex[:8]}"
-            option = {
-                "option_id": option_id,
-                "underlying_ticker": req.underlying_ticker,
-                "option_type": req.option_type,
-                "strike_price": req.strike_price,
-                "expiry_time": req.expiry_time.isoformat(),
-                "premium": req.initial_premium,
-                "is_active": True,
-                "auto_exercise": True,
-            }
-            self._stub_options[option_id] = option
-            return option
         with httpx.Client() as client:
             response = client.post(
                 f"{settings.exchange_base_url}/admin/options",

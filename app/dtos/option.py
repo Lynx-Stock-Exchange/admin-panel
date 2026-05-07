@@ -24,3 +24,7 @@ class OptionResponse(BaseModel):
 
 class OptionListResponse(BaseModel):
     options: list[OptionResponse]
+
+
+class OptionTotalResponse(BaseModel):
+    count: int
