@@ -9,9 +9,6 @@ from app.dtos.event import EventTriggerRequest
 
 
 class EventService:
-    def __init__(self):
-        self._stub_events: list[dict] = []
-
     def _headers(self) -> dict:
         return {"X-Admin-Token": settings.exchange_admin_token}
 
@@ -54,40 +51,7 @@ class EventService:
                 details={"target": "Remove target for MARKET-wide events."},
             )
 
-    def list_events(self) -> list[dict]:
-        if settings.use_stubs:
-            return list(reversed(self._stub_events))
-        with httpx.Client() as client:
-            response = client.get(
-                f"{settings.exchange_base_url}/market/events",
-                headers=self._headers(),
-            )
-            return self._handle_response(response)
 
-    def trigger_event(self, req: EventTriggerRequest) -> dict:
-        self._validate_scope(req)
-
-        if settings.use_stubs:
-            event = {
-                "event_id": f"evt-{uuid.uuid4().hex[:8]}",
-                "event_type": req.event_type,
-                "scope": req.scope,
-                "target": req.target,
-                "magnitude": req.magnitude,
-                "duration_ticks": req.duration_ticks,
-                "headline": req.headline,
-                "triggered_at": datetime.now(timezone.utc).isoformat(),
-                "triggered_by": "ADMIN",
-            }
-            self._stub_events.append(event)
-            return event
-
-        with httpx.Client() as client:
-            response = client.post(
-                f"{settings.api_gateway_url}/admin/events/trigger",
-                json=req.model_dump(),
-            )
-            return self._handle_response(response)
 
 
 event_service = EventService()
