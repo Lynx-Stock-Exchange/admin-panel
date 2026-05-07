@@ -53,3 +53,7 @@ class PlatformVerifyResponse(BaseModel):
     valid: bool
     platform_id: str | None = None
     platform_name: str | None = None
+
+
+class PlatformTotalResponse(BaseModel):
+    count: int

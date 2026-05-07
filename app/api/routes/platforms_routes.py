@@ -6,6 +6,7 @@ from app.dtos.platform import (
     PlatformCreateResponse,
     PlatformListResponse,
     PlatformRevokeResponse,
+    PlatformTotalResponse,
 )
 from app.services.platform_service import PlatformService
 
@@ -17,6 +18,11 @@ def list_platforms(platform_service: PlatformService = Depends(get_platform_serv
     return {
         "platforms": platform_service.list_platforms()
     }
+
+
+@router.get("/total", response_model=PlatformTotalResponse)
+def get_platforms_total(platform_service: PlatformService = Depends(get_platform_service)):
+    return platform_service.get_total()
 
 
 @router.post("", response_model=PlatformCreateResponse, status_code=201)

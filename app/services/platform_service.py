@@ -44,8 +44,12 @@ class PlatformService:
                 status_code=503,
             )
 
+
     def list_platforms(self) -> list[Platform]:
         return self.platform_repository.get_all()
+
+    def get_total(self) -> dict:
+        return {"count": len(self.platform_repository.get_all())}
 
     def list_active_platforms_internal(self) -> list[Platform]:
         return self.platform_repository.find_active()
