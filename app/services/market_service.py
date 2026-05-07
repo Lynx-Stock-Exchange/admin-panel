@@ -37,7 +37,7 @@ class MarketService:
                     status_code=e.response.status_code,
                     details=error.get("details", {}),
                 )
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, AttributeError):
                 raise AppException(
                     code="EXCHANGE_ERROR",
                     message=f"Exchange returned status {e.response.status_code}.",
@@ -71,7 +71,7 @@ class MarketService:
                     status_code=e.response.status_code,
                     details=error.get("details", {}),
                 )
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, AttributeError):
                 raise AppException(
                     code="EXCHANGE_ERROR",
                     message=f"Exchange returned status {e.response.status_code}.",
@@ -123,7 +123,9 @@ class MarketService:
                 json={"multiplier": multiplier},
                 headers=self._rest_api_headers(),
             )
-            return self._handle_response(response)
+            self._handle_response(response)
+        self._stub_state["speed_multiplier"] = multiplier
+        return self._stub_status()
 
 
 market_service = MarketService()
