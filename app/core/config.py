@@ -3,13 +3,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_env: str = "local"
-    cors_origins: list[str] = ["http://localhost:5173"]
-    use_stubs: bool = True
+    cors_origins: list[str] = ["http://localhost:8087"]
+    use_stubs: bool = False
 
     exchange_base_url: str = "http://localhost:9000/api/v1"
     exchange_admin_token: str = "dev-exchange-admin-token"
 
-    api_gateway_url: str = "http://localhost:8080"
+    rest_api_url: str = "http://rest-api:8085"
     kafka_bootstrap_servers: str = "localhost:9092"
 
     jwt_secret_key: str = "dev-secret-change-this"
