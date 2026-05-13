@@ -1,0 +1,44 @@
+name: Deploy Admin Panel Backend
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: admin-panel-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy admin-panel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            set -e
+
+            cd ~/stock-exchange/admin-panel
+
+            echo "Pulling latest admin-panel..."
+            git fetch origin
+            git checkout main
+            git pull origin main
+
+            cd ~/stock-exchange
+
+            echo "Building only admin-panel..."
+            DOCKER_BUILDKIT=1 docker compose build admin-panel
+
+            echo "Restarting only admin-panel without dependencies..."
+            docker compose up -d --no-deps admin-panel
+
+            echo "Deployment status:"
+            docker compose ps admin-panel
