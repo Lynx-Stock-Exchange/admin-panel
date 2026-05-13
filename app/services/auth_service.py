@@ -1,0 +1,48 @@
+from app.core.exceptions import AppException
+from app.core.security import create_admin_access_token, pwd_context, verify_password
+from app.models.admin import Admin
+from app.repositories.admin_repository import AdminRepository
+
+
+class AuthService:
+    def __init__(self, admin_repository: AdminRepository):
+        self.admin_repository = admin_repository
+
+    def login(self, username: str, password: str):
+        admin = self.admin_repository.find_by_username(username)
+
+        if not admin or not admin.is_active:
+            raise AppException(
+                code="INVALID_CREDENTIALS",
+                message="Invalid username or password.",
+                status_code=401,
+                details={},
+            )
+
+        if not verify_password(password, admin.password_hash):
+            raise AppException(
+                code="INVALID_CREDENTIALS",
+                message="Invalid username or password.",
+                status_code=401,
+                details={},
+            )
+
+        token = create_admin_access_token(admin)
+
+        return admin, token
+
+    def register(self, username: str, password: str):
+        if self.admin_repository.find_by_username(username):
+            raise AppException(
+                code="USERNAME_TAKEN",
+                message="Username is already taken.",
+                status_code=409,
+                details={},
+            )
+
+        admin = self.admin_repository.create(
+            Admin(username=username, password_hash=pwd_context.hash(password))
+        )
+        token = create_admin_access_token(admin)
+
+        return admin, token

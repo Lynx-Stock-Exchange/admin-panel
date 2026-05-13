@@ -1,0 +1,84 @@
+import uuid
+
+import httpx
+
+from app.core.config import settings
+from app.core.exceptions import AppException
+from app.dtos.option import OptionCreateRequest
+
+
+class OptionService:
+    def __init__(self):
+        self._stub_options: dict[str, dict] = {}
+
+    def _admin_headers(self) -> dict:
+        return {"ADMIN-TOKEN": settings.exchange_admin_token}
+
+    def _platform_headers(self) -> dict:
+        return {
+            "API-KEY": settings.rest_api_platform_key,
+            "API-SECRET": settings.rest_api_platform_secret,
+        }
+
+    def _handle_response(self, response: httpx.Response) -> dict | list:
+        try:
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as e:
+            try:
+                body = e.response.json()
+                error = body.get("error", {})
+                raise AppException(
+                    code=error.get("code", "EXCHANGE_ERROR"),
+                    message=error.get("message", "Exchange returned an error."),
+                    status_code=e.response.status_code,
+                    details=error.get("details", {}),
+                )
+            except (ValueError, KeyError):
+                raise AppException(
+                    code="EXCHANGE_ERROR",
+                    message=f"Exchange returned status {e.response.status_code}.",
+                    status_code=502,
+                )
+        except httpx.RequestError:
+            raise AppException(
+                code="EXCHANGE_UNREACHABLE",
+                message="Could not reach the exchange. Is it running?",
+                status_code=503,
+            )
+
+    def list_options(self) -> list[dict]:
+        if settings.use_stubs:
+            return list(self._stub_options.values())
+        with httpx.Client() as client:
+            response = client.get(
+                f"{settings.exchange_base_url}/market/options",
+                headers=self._platform_headers(),
+            )
+            return self._handle_response(response)
+
+    def create_option(self, req: OptionCreateRequest) -> dict:
+        if settings.use_stubs:
+            option_id = f"opt-{uuid.uuid4().hex[:8]}"
+            option = {
+                "option_id": option_id,
+                "underlying_ticker": req.underlying_ticker,
+                "option_type": req.option_type,
+                "strike_price": req.strike_price,
+                "expiry_time": req.expiry_time.isoformat(),
+                "premium": req.initial_premium,
+                "is_active": True,
+                "auto_exercise": True,
+            }
+            self._stub_options[option_id] = option
+            return option
+        with httpx.Client() as client:
+            response = client.post(
+                f"{settings.exchange_base_url}/admin/options",
+                headers=self._admin_headers(),
+                json=req.model_dump(mode="json"),
+            )
+            return self._handle_response(response)
+
+
+option_service = OptionService()
