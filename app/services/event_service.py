@@ -111,7 +111,12 @@ class EventService:
         ]
 
     def get_history(self) -> list[dict]:
-        return list(reversed(self._triggered_history))
+        with httpx.Client() as client:
+            response = client.get(
+                f"{settings.exchange_base_url}/market/events",
+                headers=self._platform_headers(),
+            )
+            return self._handle_response(response)
 
     def trigger_event(self, req: EventTriggerRequest) -> dict:
         self._validate_scope(req)

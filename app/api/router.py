@@ -27,6 +27,6 @@ api_router.include_router(seed_routes.router, prefix="/api/admin/seed", tags=["S
 
 api_router.include_router(
     internal_platforms_routes.router,
-    prefix="/internal",
+    prefix="/api/v1/internal",
     tags=["Internal Platforms"],
 )
